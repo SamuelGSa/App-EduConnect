@@ -2,9 +2,9 @@ package com.br.educonnect.controller;
 
 import com.br.educonnect.dto.usuario.UsuarioDTO;
 import com.br.educonnect.persistence.entity.Usuario;
-import com.br.educonnect.persistence.mapper.UsuarioMapper;
-import com.br.educonnect.persistence.repository.UserRepository;
+import com.br.educonnect.service.UsuarioService;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,75 +12,65 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+@Slf4j
+@Validated
 @RestController
 @RequestMapping("/user")
-@AllArgsConstructor
-@Validated
-@Slf4j
+@RequiredArgsConstructor
 public class UsuarioController {
 
     @Autowired
-    UserRepository userRepository;
+    private final UsuarioService usuarioService;
 
-    private final UsuarioMapper usuarioMapper;
 
     @GetMapping
-    public ResponseEntity<List<Usuario>> getAllUsers() {
-
-        List<Usuario> user = new ArrayList<>();
-
-        user = userRepository.findAll();
-
-        return new ResponseEntity<>(user, HttpStatus.OK);
+    public ResponseEntity<List<Usuario>> buscaTodosUsuarios() {
+        var listaUsuarios = usuarioService.buscaTodosUsuarios();
+        return new ResponseEntity<>(listaUsuarios, HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<Usuario> saveUser( @RequestBody UsuarioDTO usuarioDTO) {
+    public ResponseEntity<Usuario> salvaUsuario( @RequestBody UsuarioDTO usuarioDTO) {
 
-        Usuario usuario = usuarioMapper.mapDTOToModel(usuarioDTO);
-
-        userRepository.save(usuario);
-
-        return new ResponseEntity<>(usuario,HttpStatus.CREATED);
+        var usuarioSalvo = usuarioService.salvaUsuario(usuarioDTO);
+        return new ResponseEntity<>(usuarioSalvo,HttpStatus.CREATED);
     }
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Usuario>> getUserById(@PathVariable Integer id) {
+    public ResponseEntity<Optional<Usuario>> getUserById(@PathVariable Long id) {
 
-        var usuarioSolicitado  = userRepository.findById(id);
-
+        var usuarioSolicitado = usuarioService.buscaUsuarioPorId(id);
         return new ResponseEntity<>(usuarioSolicitado,HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Optional<Usuario>> deleteUserById(@PathVariable Integer id) {
-        try {
-            userRepository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<Optional<Usuario>> deleteUserById(@PathVariable Long id) {
 
+        try {
+            usuarioService.deletaUsuarioPorID(id);
+            return new ResponseEntity<>(HttpStatus.OK);
         }catch (NoSuchElementException nsee){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> updateUserById(@PathVariable Integer id, @RequestBody UsuarioDTO novoUsuario) {
+    public ResponseEntity<Usuario> updateUserById(@PathVariable Long id, @RequestBody UsuarioDTO novoUsuario) {
 
-        return userRepository.findById(id)
-                .map(usuario -> {
-                    usuario.setNome(novoUsuario.getNome());
-                    usuario.setMatricula(novoUsuario.getMatricula());
-                    Usuario usuarioAtualizado = userRepository.save(usuario);
+        try {
+            usuarioService.atualizaUsuarioPorId(id,novoUsuario) ;
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (NoSuchElementException nsee){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
 
-                    return ResponseEntity.ok().body(usuarioAtualizado);
-                }).orElse(ResponseEntity.notFound().build());
+
     }
-
 
 }
