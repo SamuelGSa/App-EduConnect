@@ -1,6 +1,7 @@
 package com.br.educonnect.service;
 
-import com.br.educonnect.dto.usuario.UsuarioDTO;
+import com.br.educonnect.dto.usuario.request.UsuarioDTO;
+import com.br.educonnect.dto.usuario.response.UsuarioResponseDTO;
 import com.br.educonnect.persistence.entity.Usuario;
 
 import java.util.List;
@@ -8,9 +9,9 @@ import java.util.Optional;
 
 public interface UsuarioService {
 
-    List<Usuario> buscaTodosUsuarios();
+    List<UsuarioResponseDTO> buscaTodosUsuarios();
 
-   Usuario salvaUsuario(UsuarioDTO usuarioDTO);
+    UsuarioResponseDTO salvaUsuario(UsuarioDTO usuarioDTO);
 
     Optional<Usuario> buscaUsuarioPorId(Long id);
 

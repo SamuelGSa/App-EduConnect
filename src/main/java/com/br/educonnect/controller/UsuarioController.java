@@ -1,9 +1,9 @@
 package com.br.educonnect.controller;
 
-import com.br.educonnect.dto.usuario.UsuarioDTO;
+import com.br.educonnect.dto.usuario.request.UsuarioDTO;
+import com.br.educonnect.dto.usuario.response.UsuarioResponseDTO;
 import com.br.educonnect.persistence.entity.Usuario;
 import com.br.educonnect.service.UsuarioService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +28,13 @@ public class UsuarioController {
 
 
     @GetMapping
-    public ResponseEntity<List<Usuario>> buscaTodosUsuarios() {
+    public ResponseEntity<List<UsuarioResponseDTO>> buscaTodosUsuarios() {
         var listaUsuarios = usuarioService.buscaTodosUsuarios();
         return new ResponseEntity<>(listaUsuarios, HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<Usuario> salvaUsuario( @RequestBody UsuarioDTO usuarioDTO) {
+    public ResponseEntity<UsuarioResponseDTO> salvaUsuario( @RequestBody UsuarioDTO usuarioDTO) {
 
         var usuarioSalvo = usuarioService.salvaUsuario(usuarioDTO);
         return new ResponseEntity<>(usuarioSalvo,HttpStatus.CREATED);
